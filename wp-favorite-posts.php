@@ -458,3 +458,50 @@ function wpfp_get_option($opt) {
     $wpfp_options = wpfp_get_options();
     return htmlspecialchars_decode( stripslashes ( $wpfp_options[$opt] ) );
 }
+
+function wpfp_users_favorites_sc($args) {
+	$title = 'Users Favorites';
+	$remove = 1;
+	$limit = 5;
+	if(isset($args['title'])){
+		$title = $args['title'];
+	}
+	if(isset($args['remove'])){
+		$remove = $args['remove'];
+	}
+	if(isset($args['limit'])){
+		$limit = $args['limit'];
+	}
+	$options = wpfp_get_options();
+	$content = $title;
+	$favorite_post_ids = wpfp_get_users_favorites();
+	ob_start();
+	if (@file_exists(TEMPLATEPATH.'/wpfp-your-favs-shortcode.php')):
+		include(TEMPLATEPATH.'/wpfp-your-favs-shortcode.php');
+	else:
+		include("wpfp-your-favs-shortcode.php");
+	endif;
+	$content .= ob_get_contents();
+	ob_end_clean();
+	return $content;
+}
+add_shortcode('wp-my-favorite','wpfp_users_favorites_sc');
+
+function wpfp_list_most_favorited_sc($args) {
+	$title = 'Most Favorited Posts';
+	$limit = 5;
+	if(isset($args['title'])){
+		$title = $args['title'];
+	}
+	if(isset($args['limit'])){
+		$limit = $args['limit'];
+	}
+	$options = wpfp_get_options();
+	$content = $title;
+	ob_start();
+	wpfp_list_most_favorited($limit);
+	$content .= ob_get_contents();
+	ob_end_clean();
+	return $content;
+}
+add_shortcode('wp-most-favorited','wpfp_list_most_favorited_sc');
