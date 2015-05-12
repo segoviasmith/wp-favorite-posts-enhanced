@@ -505,3 +505,14 @@ function wpfp_list_most_favorited_sc($args) {
 	return $content;
 }
 add_shortcode('wp-most-favorited','wpfp_list_most_favorited_sc');
+
+function wpfp_clear_list_link_sc() {
+	$content = "";
+    if (wpfp_is_user_can_edit()) {
+        $wpfp_options = wpfp_get_options();
+        $content .= "<a class='wpfp-link' href='?wpfpaction=clear' rel='nofollow'>". wpfp_get_option('clear') . "</a>";
+    }
+	return $content;
+}
+
+add_shortcode('wp-favorite-clear','wpfp_clear_list_link_sc');
