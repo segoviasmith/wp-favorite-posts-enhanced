@@ -29,6 +29,7 @@ Author URI: http://nxsn.com
 
 define('WPFP_PATH', plugins_url() . '/wp-favorite-posts');
 define('WPFP_META_KEY', "wpfp_favorites");
+define('WPFP_META_KEY_TITLE', "wpfp_favorites_title");
 define('WPFP_USER_OPTION_KEY', "wpfp_useroptions");
 define('WPFP_COOKIE_KEY', "wp-favorite-posts");
 
@@ -56,6 +57,7 @@ add_action('wp_loaded', 'wp_favorite_posts');
 
 function wpfp_add_favorite($post_id = "") {
     if ( empty($post_id) ) $post_id = $_REQUEST['postid'];
+    $title = @$_REQUEST['title'];
     if (wpfp_get_option('opt_only_registered') && !is_user_logged_in() ) {
         wpfp_die_or_go(wpfp_get_option('text_only_registered') );
         return false;
@@ -64,7 +66,20 @@ function wpfp_add_favorite($post_id = "") {
     if (wpfp_do_add_to_list($post_id)) {
         // added, now?
         do_action('wpfp_after_add', $post_id);
-        if (wpfp_get_option('statics')) wpfp_update_post_meta($post_id, 1);
+        if (wpfp_get_option('statics')) {
+			wpfp_update_post_meta($post_id, 1);
+			$meta = get_user_meta(wpfp_get_user_id(), WPFP_META_KEY_TITLE, true);
+			$metaArray = array();
+			if(is_array($meta)){
+				foreach($meta as $mt){
+					if($mt['id'] == $post_id) continue;
+					$metaArray[] = $mt;
+				}
+			}
+			$arr = array('id'=>$post_id,'title'=>$title);
+			$metaArray[] = $arr;
+			update_user_meta(wpfp_get_user_id(),WPFP_META_KEY_TITLE,$metaArray);
+		}
         if (wpfp_get_option('added') == 'show remove link') {
             $str = wpfp_link(1, "remove", 0, array( 'post_id' => $post_id ) );
             wpfp_die_or_go($str);
@@ -88,7 +103,18 @@ function wpfp_remove_favorite($post_id = "") {
     if (wpfp_do_remove_favorite($post_id)) {
         // removed, now?
         do_action('wpfp_after_remove', $post_id);
-        if (wpfp_get_option('statics')) wpfp_update_post_meta($post_id, -1);
+        if (wpfp_get_option('statics')) {
+			wpfp_update_post_meta($post_id, -1);
+			$mta = get_user_meta(wpfp_get_user_id(), WPFP_META_KEY_TITLE, true);
+			$meta_final = array();
+			if(is_array($mta)){
+				foreach($mta as $mts){
+					if($mts['id'] == $post_id) continue;
+					$meta_final[] = $mts;
+				}
+			}
+			update_user_meta(wpfp_get_user_id(),WPFP_META_KEY_TITLE,$meta_final);
+		}
         if (wpfp_get_option('removed') == 'show add link') {
             if ( isset($_REQUEST['page']) && $_REQUEST['page'] == 1 ):
                 $str = '';
@@ -138,6 +164,9 @@ function wpfp_link( $return = 0, $action = "", $show_span = 1, $args = array() )
     global $post;
     //print_r($post);
     $post_id = &$post->ID;
+	if(isset($url)){
+		$post_id = url_to_postid($url);
+	}
     extract($args);
     $str = "";
     if ($show_span)
@@ -158,8 +187,8 @@ function wpfp_link( $return = 0, $action = "", $show_span = 1, $args = array() )
     if ($return) { return $str; } else { echo $str; }
 }
 
-function wpfp_link_html($post_id, $opt, $action) {
-    $link = "<a class='wpfp-link' href='?wpfpaction=".$action."&amp;postid=". $post_id . "' title='". $opt ."' rel='nofollow'>". $opt ."</a>";
+function wpfp_link_html($post_id, $opt, $action,$title='') {
+    $link = "<a class='wpfp-link' href='?wpfpaction=".$action."&amp;postid=". $post_id . "&amp;title=".$title."' title='". $opt ."' rel='nofollow'>". $opt ."</a>";
     $link = apply_filters( 'wpfp_link_html', $link );
     return $link;
 }
@@ -258,6 +287,9 @@ function wpfp_clear_favorites() {
             }
         endif;
         if (!delete_user_meta(wpfp_get_user_id(), WPFP_META_KEY)) {
+            return false;
+        }
+        if (!delete_user_meta(wpfp_get_user_id(), WPFP_META_KEY_TITLE)) {
             return false;
         }
     }
@@ -516,3 +548,24 @@ function wpfp_clear_list_link_sc() {
 }
 
 add_shortcode('wp-favorite-clear','wpfp_clear_list_link_sc');
+
+function wp_favorites_link($args) {
+    global $post;
+    $post_id = &$post->ID;
+	$title = "";
+	if(isset($args['url'])){
+		$post_id = url_to_postid($args['url']);
+	}
+	if(isset($args['title'])){
+		$title = $args['title'];
+	}
+    $str = "";
+    if (wpfp_check_favorited($post_id)):
+        $str .= wpfp_link_html($post_id, wpfp_get_option('remove_favorite'), "remove",$title);
+    else:
+        $str .= wpfp_link_html($post_id, wpfp_get_option('add_favorite'), "add",$title);
+    endif;
+    return $str;
+}
+
+add_shortcode('wp-favorite-link','wp_favorites_link');
