@@ -25,6 +25,8 @@ if ( isset($_POST['submit']) ) {
 	$wpfp_options['custom_before_image'] = htmlspecialchars($_POST['custom_before_image']);
 	$wpfp_options['autoshow'] = htmlspecialchars($_POST['autoshow']);
 	$wpfp_options['post_per_page'] = htmlspecialchars($_POST['post_per_page']);
+	$wpfp_options['usrclass'] = htmlspecialchars($_POST['usrclass']);
+	$wpfp_options['mstclass'] = htmlspecialchars($_POST['mstclass']);
 
     $wpfp_options['dont_load_js_file'] = '';
     if (isset($_POST['dont_load_js_file']))
@@ -232,8 +234,16 @@ jQuery(document).ready(function($) {
             </tr>
             <tr>
                 <th><?php _e("Text for \"only registered users can favorite\" error message", "wp-favorite-posts") ?></th><td><textarea name="text_only_registered" rows="2" cols="35"><?php echo stripslashes($wpfp_options['text_only_registered']); ?></textarea></td>
+            </tr>            
+			<?php //Custom options start ?>
+			<tr>
+                <th><?php _e("Class for User's Favorites container", "wp-favorite-posts") ?></th><td><input type="text" name="usrclass" value="<?php echo stripslashes($wpfp_options['usrclass']); ?>" /></td>
+            </tr>			
+			
+			<tr>
+                <th><?php _e("Class for Most Favorited container", "wp-favorite-posts") ?></th><td><input type="text" name="mstclass" value="<?php echo stripslashes($wpfp_options['mstclass']); ?>" /></td>
             </tr>
-
+			<?php //Custom options end ?>
             <tr>
                 <th></th>
                 <td>
