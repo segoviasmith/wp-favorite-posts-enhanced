@@ -515,14 +515,7 @@ function wpfp_users_favorites_sc($args) {
 	}
 	$content .= '<h4>'.$title.'</h4>';
 	$favorite_post_ids = wpfp_get_users_favorites();
-	ob_start();
-	if (@file_exists(TEMPLATEPATH.'/wpfp-your-favs-shortcode.php')):
-		include(TEMPLATEPATH.'/wpfp-your-favs-shortcode.php');
-	else:
-		include("wpfp-your-favs-shortcode.php");
-	endif;
-	$content .= ob_get_contents();
-	ob_end_clean();
+	$content .= wpfp_your_favs_shortcode($favorite_post_ids,$remove,$limit);
 	$content .= '</div>';
 	return $content;
 }
@@ -585,3 +578,40 @@ function wp_favorites_link($args) {
 }
 
 add_shortcode('wp-favorite-link','wp_favorites_link');
+
+function wpfp_your_favs_shortcode($favorite_post_ids,$remove,$limit){
+$content =  '<ul>';
+if (!empty($favorite_post_ids)):
+	$c = 0;
+	$favorite_post_ids = array_reverse($favorite_post_ids);
+    foreach ($favorite_post_ids as $post_id) {
+    	if ($c++ == $limit) break;
+        $p = get_post($post_id);
+		$meta = get_user_meta(wpfp_get_user_id(), WPFP_META_KEY_TITLE, true);
+		$tl = $p->post_title;
+		if(is_array($meta)){
+			foreach($meta as $mt){
+				if($mt['id'] == $post_id){
+					$tl = ($mt['title'] != '')?$mt['title'] : $p->post_title;
+					break;
+				}
+			}
+		}
+        $content .= '<li>';
+        $content .= '<a href="'.get_permalink($post_id).'" title="'. $p->post_title .'">' . $tl . '</a> ';
+		if($remove == 1){
+			ob_start();
+			wpfp_remove_favorite_link($post_id);
+			$content .= ob_get_contents();
+			ob_end_clean();		
+		}
+        $content .= '</li>';
+    }
+else:
+    $content .= '<li>';
+    $content .= 'Your favorites will be here.';
+    $content .= '</li>';
+endif;
+$content .= '</ul>';
+return $content;
+}
