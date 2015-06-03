@@ -1,5 +1,5 @@
 <?php
-echo "<ul>";
+echo '<ul>';
 if (!empty($favorite_post_ids)):
 	$c = 0;
 	$favorite_post_ids = array_reverse($favorite_post_ids);
@@ -16,17 +16,17 @@ if (!empty($favorite_post_ids)):
 				}
 			}
 		}
-        echo "<li>";
-        echo "<a href='".get_permalink($post_id)."' title='". $p->post_title ."'>" . $tl . "</a> ";
+        echo '<li>';
+        echo '<a href="'.get_permalink($post_id).'" title="'. $p->post_title .'">' . $tl . '</a> ';
 		if($remove == 1){
 			wpfp_remove_favorite_link($post_id);
 		}
-        echo "</li>";
+        echo '</li>';
     }
 else:
-    echo "<li>";
-    echo "Your favorites will be here.";
-    echo "</li>";
+    echo '<li>';
+    echo 'Your favorites will be here.';
+    echo '</li>';
 endif;
-echo "</ul>";
+echo '</ul>';
 ?>

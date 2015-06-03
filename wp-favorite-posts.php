@@ -467,7 +467,7 @@ function wpfp_remove_favorite_link($post_id) {
     if (wpfp_is_user_can_edit()) {
         $wpfp_options = wpfp_get_options();
         $class = 'wpfp-link remove-parent';
-        $link = "<a id='rem_$post_id' class='$class' href='?wpfpaction=remove&amp;page=1&amp;postid=". $post_id ."' title='".wpfp_get_option('rem')."' rel='nofollow'>".wpfp_get_option('rem')."</a>";
+        $link = '<a id="rem_'.$post_id.'" class="'.$class.'" href="?wpfpaction=remove&amp;page=1&amp;postid='. $post_id .'" title="'.wpfp_get_option('rem').'" rel="nofollow">'.wpfp_get_option('rem').'</a>';
         $link = apply_filters( 'wpfp_remove_favorite_link', $link );
         echo $link;
     }
@@ -478,7 +478,7 @@ function wpfp_clear_list_link() {
         $wpfp_options = wpfp_get_options();
         echo wpfp_before_link_img();
         echo wpfp_loading_img();
-        echo "<a class='wpfp-link' href='?wpfpaction=clear' rel='nofollow'>". wpfp_get_option('clear') . "</a>";
+        echo '<a class="wpfp-link" href="?wpfpaction=clear" rel="nofollow">'. wpfp_get_option('clear') . '</a>';
     }
 }
 
